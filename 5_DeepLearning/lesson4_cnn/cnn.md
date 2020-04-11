@@ -1,4 +1,78 @@
-课外资料
+# 1.CNN应用
+## 1.WaveNet 模型:
+
+[https://deepmind.com/blog/wavenet-generative-model-raw-audio/](https://deepmind.com/blog/wavenet-generative-model-raw-audio/)
+
+如果你能训练人工智能机器人唱歌，干嘛还训练它聊天？在 2017 年 4 月，研究人员使用 WaveNet 模型的变体生成了歌曲。原始论文和演示可以在此处找到。
+
+http://www.creativeai.net/posts/W2C3baXvf2yJSLbY6/a-neural-parametric-singing-synthesizer
+
+## 2.文本分类 CNN
+
+http://www.wildml.com/2015/12/implementing-a-cnn-for-text-classification-in-tensorflow/
+
+你或许想注册作者的深度[学习简讯！](https://www.getrevue.co/profile/wildml)
+
+# 3.Facebook的创新CNN方法
+
+https://code.facebook.com/posts/1978007565818999/a-novel-approach-to-neural-machine-translation/
+
+该方法专门用于解决语言翻译任务，准确率达到了前沿性水平，并且速度是 RNN 模型的 9 倍。
+    
+## 4.Atari 游戏
+
+利用 CNN 和强化学习玩 Atari 游戏。你可以下载此论文附带的[代码](https://sites.google.com/a/deepmind.com/dqn/)。
+
+如果你想研究一些（深度强化学习）初学者代码，建议你参阅 Andrej Karpathy 的[帖子。](http://karpathy.github.io/2016/05/31/rl/)
+
+## 5.利用 CNN 玩看图说词游戏！
+https://quickdraw.withgoogle.com/#
+
+此外，还可以参阅 [A.I.Experiments](https://aiexperiments.withgoogle.com/) 网站上的所有其他很酷的实现。别忘了 [AutoDraw！](https://www.autodraw.com/)
+
+## 6.详细了解 AlphaGo。
+
+https://deepmind.com/research/alphago/
+
+阅读[这篇文章](https://www.technologyreview.com/s/604273/finding-solace-in-defeat-by-artificial-intelligence/?set=604287)，其中提出了一个问题：如果掌控 Go“需要人类直觉”，那么人性受到挑战是什么感觉？_
+
+
+## 7.观看这些非常酷的视频，其中的无人机都受到 CNN 的支持。
+
+这是初创企业 [Intelligent Flying Machines (IFM) (Youtube)](https://www.youtube.com/watch?v=AMDiR61f86Y)的访谈。
+户外自主导航通常都要借助[全球定位系统](http://www.droneomega.com/gps-drone-navigation-works/) (GPS)，但是下面的演示展示的是由 CNN 提供技术支持的[自主无人机](https://www.youtube.com/watch?v=wSFYOw4VIYY)(Youtube)。
+
+## 8.无人驾驶汽车使用的 CNN 感兴趣
+
+我们在此项目中对德国交通标志数据集中的标志进行分类。
+
+https://github.com/udacity/CarND-Traffic-Sign-Classifier-Project
+
+http://benchmark.ini.rub.de/?section=gtsrb&subsection=dataset
+
+我们在此项目中对街景门牌号数据集中的门牌号进行分类。
+
+
+https://github.com/udacity/machine-learning/tree/master/projects/digit_recognition
+
+http://ufldl.stanford.edu/housenumbers/
+
+这些系列博客，其中详细讲述了如何训练用 Python 编写的 CNN，以便生成能够玩“侠盗猎车手”的无人驾驶 AI。
+
+https://pythonprogramming.net/game-frames-open-cv-python-plays-gta-v/
+
+## 9.其他应用情形
+
+一些全球最著名的画作被[转换成了三维形式](http://www.businessinsider.com/3d-printed-works-of-art-for-the-blind-2016-1)，以便视力受损人士也能欣赏。虽然这篇文章没有提到是怎么做到的，我们注意到可以使用 CNN 预测[单个图片的深度](https://cs.nyu.edu/~deigen/depth/)。
+
+
+参阅这篇关于使用 CNN 确定乳腺癌位置的研究[论文](https://research.googleblog.com/2017/03/assisting-pathologists-in-detecting.html)(google research)。
+
+CNN 被用来[拯救濒危物种！](https://blogs.nvidia.com/blog/2016/11/04/saving-endangered-species/?adbsc=social_20170303_70517416)
+
+一款叫做 [FaceApp](http://www.digitaltrends.com/photography/faceapp-neural-net-image-editing/) 的应用使用 CNN 让你在照片中是微笑状态或改变性别。
+
+# 2.图片分类MLP课外资料
 
 参阅首篇建议将 dropout 用作避免过拟合技巧的研究论文。
 https://www.cs.toronto.edu/~hinton/absps/JMLRdropout.pdf
@@ -77,23 +151,46 @@ http://yann.lecun.com/exdb/mnist/
 
 # CNN
 
-局部连接性
+相对于多层感知机(MLP),卷积神经网络（CNN），
+
+当知道两个输入可能包含相同类型信息时，可以共享它们的权重，并利用这些输入共同训练权重。
+
+统计不变量，即基本上不会随时间或空间改变的事物，无处不在；
+
+对于图像，权重共享的思想引出了卷积网络的研究；
+
+对于一般的文本和序列，则涉及嵌入和循环神经网络。
+
+
+## 局部连接性
 ![](./c000.png)
 
-参数共享性
+## 参数共享性
 
 ![](./cnn002.png)
 
 
-# 卷积层
+对于多层网络输出入
+
 
 ![](./cnn200.png)
 
-## 卷基层的stride和pad
+卷积网络本质上就是一个深度网络，但用共享权重的“卷积层”替代了一般的“全连接层”。
+
+总的想法是让它们形成金字塔状，金字塔底部是一个非常大而浅的图片，仅包含RGB三通道，通过卷积操作逐渐挤压空间的维度，同时不断增加深度，使深度信息大体上可以表示出复杂的语义。
+
+在金字塔尖顶端可以放一个分类器，所有空间信息都被压缩成一个表示，仅映射到图片内容的参数被保留。
+
+![](./cnn501.png)
+
+
+
+
+## 卷积层的stride和pad
 
 ![](./cnn202.png)
 
-# Keras中的卷基层
+# Keras中的卷积层
 
 导入必要的模块：
 
@@ -157,19 +254,16 @@ Conv2D(filters=16, kernel_size=2, strides=2, activation='relu', input_shape=(200
 
 
 ```python
+from keras.layers import Conv2D
 Conv2D(filters=32, kernel_size=3, padding='same', activation='relu')
+
 ```
 
 
-    ---------------------------------------------------------------------------
 
-    NameError                                 Traceback (most recent call last)
 
-    <ipython-input-1-105ebeeffb19> in <module>
-    ----> 1 Conv2D(filters=32, kernel_size=3, padding='same', activation='relu')
-    
+    <keras.layers.convolutional.Conv2D at 0x7f7f47aa37b8>
 
-    NameError: name 'Conv2D' is not defined
 
 
 示例 3
@@ -190,6 +284,18 @@ model.add(Conv2D(filters=16, kernel_size=2, strides=2, padding='valid',
     activation='relu', input_shape=(200, 200, 1)))
 model.summary()
 ```
+
+    Model: "sequential_1"
+    _________________________________________________________________
+    Layer (type)                 Output Shape              Param #   
+    =================================================================
+    conv2d_4 (Conv2D)            (None, 100, 100, 16)      80        
+    =================================================================
+    Total params: 80
+    Trainable params: 80
+    Non-trainable params: 0
+    _________________________________________________________________
+
 
 # 卷积层中的参数数量
 
@@ -243,6 +349,18 @@ model.add(Conv2D(filters=32, kernel_size=3, strides=2, padding='same',
     activation='relu', input_shape=(128, 128, 3)))
 model.summary()
 ```
+
+    Model: "sequential_2"
+    _________________________________________________________________
+    Layer (type)                 Output Shape              Param #   
+    =================================================================
+    conv2d_5 (Conv2D)            (None, 64, 64, 32)        896       
+    =================================================================
+    Total params: 896
+    Trainable params: 896
+    Non-trainable params: 0
+    _________________________________________________________________
+
 
 卷积层是指特征映射堆栈，每个过滤器对应一个特征映射，具有很多不同对象类别的复杂数据集，需要大量过滤器，
 每个过滤器负责从图片中查找一种规律，过滤器越多，则堆栈越大，意味着卷积层维度越高，则需要使用更多参数。这样可能会导致过拟合，
@@ -318,6 +436,20 @@ model.add(MaxPooling2D(pool_size=2, strides=2, input_shape=(100, 100, 15)))
 model.summary()
 ```
 
+    WARNING:tensorflow:From /home/leon/anaconda3/lib/python3.7/site-packages/keras/backend/tensorflow_backend.py:4070: The name tf.nn.max_pool is deprecated. Please use tf.nn.max_pool2d instead.
+    
+    Model: "sequential_3"
+    _________________________________________________________________
+    Layer (type)                 Output Shape              Param #   
+    =================================================================
+    max_pooling2d_1 (MaxPooling2 (None, 50, 50, 15)        0         
+    =================================================================
+    Total params: 0
+    Trainable params: 0
+    Non-trainable params: 0
+    _________________________________________________________________
+
+
 # 设计图片CNN
 
 卷积层，可以检测图片中的区域性规律，池化层在卷积层之后，可以降低数组的维数，加上全连接层，是CNN中常用的网络层。
@@ -374,6 +506,34 @@ model.add(Dense(10, activation='softmax'))
 model.summary()
 ```
 
+    Model: "sequential_4"
+    _________________________________________________________________
+    Layer (type)                 Output Shape              Param #   
+    =================================================================
+    conv2d_6 (Conv2D)            (None, 32, 32, 16)        208       
+    _________________________________________________________________
+    max_pooling2d_2 (MaxPooling2 (None, 16, 16, 16)        0         
+    _________________________________________________________________
+    conv2d_7 (Conv2D)            (None, 16, 16, 32)        2080      
+    _________________________________________________________________
+    max_pooling2d_3 (MaxPooling2 (None, 8, 8, 32)          0         
+    _________________________________________________________________
+    conv2d_8 (Conv2D)            (None, 8, 8, 64)          8256      
+    _________________________________________________________________
+    max_pooling2d_4 (MaxPooling2 (None, 4, 4, 64)          0         
+    _________________________________________________________________
+    flatten_1 (Flatten)          (None, 1024)              0         
+    _________________________________________________________________
+    dense_1 (Dense)              (None, 500)               512500    
+    _________________________________________________________________
+    dense_2 (Dense)              (None, 10)                5010      
+    =================================================================
+    Total params: 528,054
+    Trainable params: 528,054
+    Non-trainable params: 0
+    _________________________________________________________________
+
+
 该网络以三个卷积层（后面跟着最大池化层）序列开始。前 6 个层级旨在将图片像素数组输入转换为所有空间信息都丢失、仅保留图片内容信息的数组 。然后在 CNN 的第七个层级将该数组扁平化为向量。后面跟着两个密集层，旨在进一步说明图片中的内容。最后一层针对数据集中的每个对象类别都有一个条目，并具有一个 softmax 激活函数，使其返回概率。
 
 注意事项
@@ -420,6 +580,20 @@ datagen.fit(x_train)
 ```
 
 
+    ---------------------------------------------------------------------------
+
+    NameError                                 Traceback (most recent call last)
+
+    <ipython-input-11-e7f60908369d> in <module>
+          7 # fit augmented image generator on data
+          8 
+    ----> 9 datagen.fit(x_train)
+    
+
+    NameError: name 'x_train' is not defined
+
+
+
 ```python
 from keras.models import Sequential
 from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
@@ -462,8 +636,6 @@ steps_per_epoch = x_train.shape[0] / batch_size
 
 其中 x_train.shape[0] 对应的是训练数据集 x_train 中的独特样本数量。通过将 steps_per_epoch 设为此值，我们确保模型在每个 epoch 中看到 x_train.shape[0] 个增强图片。
 
-
-```python
 课外资料
 
 阅读这篇对 MNIST 数据集进行可视化的精彩博文。
@@ -477,7 +649,6 @@ https://blog.keras.io/building-powerful-image-classification-models-using-very-l
 阅读关于 ImageDataGenerator 类的 Keras 文档。
 
 https://keras.io/preprocessing/image/
-```
 
 # 突破性的cnn架构
 
@@ -708,6 +879,17 @@ https://www.youtube.com/watch?v=fZvOy0VXWAI
 参阅这个使用可视化机器更好地理解瓶颈特征的资源库。
 
 https://github.com/alexisbcook/keras_transfer_cifar10
+
+
+
+
+
+
+
+
+```python
+
+```
 
 
 ```python
