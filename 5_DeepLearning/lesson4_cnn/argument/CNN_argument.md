@@ -14,7 +14,11 @@ https://keras.io/preprocessing/image/
 
 https://keras-cn.readthedocs.io/en/latest/preprocessing/image/
 
+https://machinelearningmastery.com/image-augmentation-deep-learning-keras/
+
 https://machinelearningmastery.com/how-to-configure-image-data-augmentation-when-training-deep-learning-neural-networks/
+
+https://blog.keras.io/building-powerful-image-classification-models-using-very-little-data.html
 
 Keras中数据增强的类：ImageDataGenerator
 
@@ -334,7 +338,7 @@ pyplot.show()
 ![png](output_18_0.png)
 
 
-# 2 在训练中运用数据增强的实际场景
+# 2 在实际训练场景中，数据增强技术的运用
 
 1.图片来源于已知数据集，如mnist;
 
@@ -343,6 +347,8 @@ pyplot.show()
 3.图片来源于panda数据集；
 
 ## 2.1 数据来源已知数据集，操作方法如下：
+
+数据集已经全部读到内存中
 
 
 ```python
@@ -353,16 +359,17 @@ from keras import backend as K
 
 #K.set_image_dim_ordering('th')
 
+
 (train_data, train_label), (test_data, test_label) = mnist.load_data()
 train_data = train_data.reshape(train_data.shape[0], 1, 28, 28)
 train_data = train_data.astype('float32')
 
 # 创建图像生成器，指定对图像操作的内容，允许图片标准化处理
-datagen = ImageDataGenerator(featurewise_center=True, featurewise_std_normalization=True)
+datagen = ImageDataGenerator(featurewise_center=True, featurewise_std_normalization=True, horizontal_flip=True)
 # 图像生成器要训练的数据,计算均值，方差等
 datagen.fit(train_data)
 
-# 这是个图像生成迭代器，是可以无限生成各种新图片，我们指定每轮迭代只生成9张图片
+# 这是个图像生成迭代器，是可以无限生成各种新图片，这里指定每轮迭代只生成9张图片
 for batch_data, batch_label in datagen.flow(train_data, train_label, batch_size=9):
     for i in range(0, 9):
         # 创建一个 3*3的九宫格，以显示图片
@@ -372,62 +379,104 @@ for batch_data, batch_label in datagen.flow(train_data, train_label, batch_size=
     break
 ```
 
+    /home/leon/anaconda3/lib/python3.7/site-packages/keras_preprocessing/image/image_data_generator.py:940: UserWarning: Expected input to be images (as Numpy array) following the data format convention "channels_last" (channels on axis 3), i.e. expected either 1, 3 or 4 channels on axis 3. However, it was passed an array with shape (60000, 1, 28, 28) (28 channels).
+      ' channels).')
+    /home/leon/anaconda3/lib/python3.7/site-packages/keras_preprocessing/image/numpy_array_iterator.py:127: UserWarning: NumpyArrayIterator is set to use the data format convention "channels_last" (channels on axis 3), i.e. expected either 1, 3, or 4 channels on axis 3. However, it was passed an array with shape (60000, 1, 28, 28) (28 channels).
+      str(self.x.shape[channels_axis]) + ' channels).')
 
-![png](output_21_0.png)
+
+
+![png](output_21_1.png)
 
 
 ## 2.2数据来源图片集，其操作方法如下：
 
-这种类型在实际训练中更常见，这里举两个类型例子
+实际应用中，大部分场景是从硬盘读取图片，并且图片太多，不可能一次性都读到硬盘，那么可以对传入的目录，随机读取并且做数据增广
+
+### 1.对已经读取到内存的单张图片数据(数组)，做随机增广
+
+可以为单个类别创建augment_times个增广图片
 
 
 ```python
-batch_size = 32
-# 迭代50次
-epochs = 50
-# 依照模型规定，图片大小被设定为224
-IMAGE_SIZE = 224
+from numpy import expand_dims
+from keras.preprocessing.image import load_img
+from keras.preprocessing.image import img_to_array
+from keras.preprocessing.image import ImageDataGenerator
+from matplotlib import pyplot
+from PIL import Image
+import numpy as np
+from keras.preprocessing import image
+import keras as K
 
-TRAIN_PATH = './data/17flowerclasses/train'
-TEST_PATH = './data/17flowerclasses/test'
+# load the image
+img = image.load_img('bird.jpg')
+print(img)
+# convert to numpy array
+data_bird = image.img_to_array(img)
+print(data_bird.shape)
 
-FLOWER_CLASSES = ['Bluebell', 'ButterCup', 'ColtsFoot', 'Cowslip', 'Crocus', 'Daffodil', 'Daisy','Dandelion', 'Fritillary', 'Iris', 'LilyValley', 'Pansy', 'Snowdrop', 'Sunflower','Tigerlily', 'tulip', 'WindFlower']
-
-# 使用数据增强
-train_datagen = ImageDataGenerator(rotation_range=90)
-# 可指定输出图片大小，因为深度学习要求训练图片大小保持一致
-train_generator = train_datagen.flow_from_directory(directory=TRAIN_PATH,
-                                                        target_size=(IMAGE_SIZE, IMAGE_SIZE),
-                                                        classes=FLOWER_CLASSES)
-test_datagen = ImageDataGenerator()
-test_generator = test_datagen.flow_from_directory(directory=TEST_PATH, 
-                                                      target_size=(IMAGE_SIZE, IMAGE_SIZE),
-                                                      classes=FLOWER_CLASSES)
- # 运行模型
-history = model.fit_generator(train_generator, epochs=epochs, validation_data=test_generator)
+pyplot.imshow(img)
 ```
 
-    Found 14 images belonging to 17 classes.
-    Found 170 images belonging to 17 classes.
+    <PIL.JpegImagePlugin.JpegImageFile image mode=RGB size=640x399 at 0x7F0E84EAB160>
+    (399, 640, 3)
 
 
 
-    ---------------------------------------------------------------------------
 
-    NameError                                 Traceback (most recent call last)
 
-    <ipython-input-134-587ecd3543f7> in <module>
-         21                                                       classes=FLOWER_CLASSES)
-         22  # 运行模型
-    ---> 23 history = model.fit_generator(train_generator, epochs=epochs, validation_data=test_generator)
-    
+    <matplotlib.image.AxesImage at 0x7f0e84ecf518>
 
-    NameError: name 'model' is not defined
+
+
+
+![png](output_24_2.png)
 
 
 
 ```python
-需要说明的是，这些增强图片都是在内存中实时批量迭代生成的，不是一次性被读入内存，这样可以极大地节约内存空间，加快处理速度。若想保留中间过程生成的增强图片，可以在上述方法中添加保存路径等参数，此处不再赘述。
+data_gen = ImageDataGenerator(
+    rescale = .1, # TODO：随机缩放图像RGB值的倍数
+    rotation_range =0.15 , # TODO：随机旋转图像的范围
+    zoom_range = 0.1,  # TODO：随机缩放图像大小范围
+    width_shift_range = 0.2,  # TODO：随机水平方向平移图像(fraction of total width)
+    height_shift_range= 0.2,  # TODO：随机纵向平移图像(fraction of total height)
+    horizontal_flip=True,
+)
+```
+
+
+```python
+augment_times = 5
+data_x = []
+data_y = []
+i = 0
+for _ in range(augment_times):
+    face_aug = data_gen.random_transform(data_bird)
+    data_x.append(face_aug)
+    #data_y.append(name_dict[subdir])
+    plt.subplot(2,3,1+i)
+    plt.imshow(array_to_img(face_aug))#
+    i = i+1
+    
+```
+
+
+![png](output_26_0.png)
+
+
+### 2从目录随机读取所有类别图片，做数据增广
+
+详细功能解释见代码注释
+
+ps:实测发现迭代器产生图片的
+
+
+```python
+#需要说明的是，这些增强图片都是在内存中实时批量迭代生成的，不是一次性被读入内存，这样可以极大地节约内存空间，加快处理速度。若想保留中间过程生成的增强图片，可以在上述方法中添加保存路径等参数，此处不再赘述。
+import matplotlib.pyplot as plt
+
 batch_size = 32
 # 迭代50次
 epochs = 50
@@ -446,6 +495,7 @@ train_generator = train_datagen.flow_from_directory(directory=TRAIN_PATH,
                                                         target_size=(IMAGE_SIZE, IMAGE_SIZE),
                                                         classes=FLOWER_CLASSES)
 
+
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 import numpy as np
 datagen = ImageDataGenerator(
@@ -456,13 +506,239 @@ datagen = ImageDataGenerator(
         zoom_range=0.2,
         horizontal_flip=True,
         fill_mode='nearest')
- 
-gener=datagen.flow_from_directory(r'./data/17flowerclasses/train',#类别子文件夹的上一级文件夹
-                                         batch_size=8,
+# 这里因为设置了save_to_dir参数，实际会保存所有增广图片到save_to_dir目录
+dataflow_generator=datagen.flow_from_directory(r'./data/17flowerclasses/train',#类别子文件夹的上一级文件夹
+                                         batch_size=6,
                                          shuffle=False,
                                          save_to_dir=r'./train_result',
                                          save_prefix='trans_',
                                          save_format='jpg')
+filenames = dataflow_generator.filenames
+labels = dataflow_generator.class_indices
+print(filenames)
+
+#dataflow_generator实际上是一个无限迭代器
 for i in range(1):
-    gener.next()
+    dataflow_generator.next()
+sample_count = 10
+i = 0
+
+#此处image_data是一个2xlen(image_data[1])序列，
+#image_data[0][...]存放batch_size张图片
+#image_data[1][...]存放batch_size对应标签，默认自动创建为独热编码标签
+
+for image_data in dataflow_generator:
+    print(len(image_data[1]))
+    for j in range(0,len(image_data[1])):
+        if i >= 15:
+            break
+        plt.subplot(3,5,1+i)
+        image = image_data[0][j].astype('uint8')
+        #print(type(image_data))
+        plt.imshow(array_to_img(image))#图片转化为image格式，方便显示
+        #plt.imshow(image)
+        i += 1
+        print(image_data[1][j])          #label
+        #print(image_data[0][0].shape) #image
+   
+    sample_count -= 1
+    if sample_count <= 0:
+        break
+```
+
+    Found 14 images belonging to 3 classes.
+    Found 14 images belonging to 3 classes.
+    ['Bluebell/image_0241.jpg', 'Bluebell/image_0242.jpg', 'Bluebell/image_0243.jpg', 'Bluebell/image_0244.jpg', 'Bluebell/image_0245.jpg', 'ButterCup/image_1121.jpg', 'ButterCup/image_1122.jpg', 'ButterCup/image_1123.jpg', 'ButterCup/image_1124.jpg', 'ButterCup/image_1125.jpg', 'ColtsFoot/image_0881.jpg', 'ColtsFoot/image_0882.jpg', 'ColtsFoot/image_0883.jpg', 'ColtsFoot/image_0884.jpg']
+    6
+    [0. 1. 0.]
+    [0. 1. 0.]
+    [0. 1. 0.]
+    [0. 1. 0.]
+    [0. 0. 1.]
+    [0. 0. 1.]
+    2
+    [0. 0. 1.]
+    [0. 0. 1.]
+    6
+    [1. 0. 0.]
+    [1. 0. 0.]
+    [1. 0. 0.]
+    [1. 0. 0.]
+    [1. 0. 0.]
+    [0. 1. 0.]
+    6
+    [0. 1. 0.]
+    2
+    6
+    6
+    2
+    6
+    6
+
+
+
+![png](output_28_1.png)
+
+
+# 举一个从硬盘读取图片做数据增广多分类的实例
+
+
+```python
+import csv
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+import pandas as pd
+
+import sklearn
+import os
+import random
+
+import tensorflow as tf
+```
+
+
+```python
+BATCH_SIZE = 16
+
+# 迭代50次
+EPOCHS = 10
+
+# 依照模型规定，图片大小被设定为224
+IMAGE_SIZE = 224
+
+TRAIN_PATH = './17flowerclasses/train'
+TEST_PATH = './17flowerclasses/test'
+FLOWER_CLASSES = ['Bluebell', 'ButterCup', 'ColtsFoot', 'Cowslip', 'Crocus', 'Daffodil', 'Daisy','Dandelion', 'Fritillary', 'Iris', 'LilyValley', 'Pansy', 'Snowdrop', 'Sunflower','Tigerlily', 'tulip', 'WindFlower']
+
+# 使用数据增强
+train_datagen  = ImageDataGenerator(
+        rotation_range=40,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        fill_mode='nearest')
+# 可指定输出图片大小，因为深度学习要求训练图片大小保持一致
+train_generator = train_datagen.flow_from_directory(directory=TRAIN_PATH,
+                                                        target_size=(IMAGE_SIZE, IMAGE_SIZE),
+                                                        batch_size = BATCH_SIZE,
+                                                        classes=FLOWER_CLASSES)
+test_datagen = ImageDataGenerator()
+test_generator = test_datagen.flow_from_directory(directory=TEST_PATH, 
+                                                      target_size=(IMAGE_SIZE, IMAGE_SIZE),
+                                                      classes=FLOWER_CLASSES)
+
+```
+
+    Found 1190 images belonging to 17 classes.
+    Found 170 images belonging to 17 classes.
+
+
+
+```python
+from keras.layers import Conv2D, MaxPooling2D, GlobalAveragePooling2D
+from keras.layers import Dropout, Flatten, Dense
+from keras.models import Sequential
+
+model = Sequential()
+
+### TODO: 定义你的网络架构
+
+model.add(Conv2D(filters=32, kernel_size=3, padding='valid', activation='relu', input_shape=(224, 224, 3)))
+#model.add(Conv2D(32, (3,3), input_shape=(160, 160, 3), activation="relu"))
+model.add(MaxPooling2D(pool_size=2))
+#model.add(MaxPooling2D(pool_size=(2,2)))
+model.add(Dropout(0.5))
+
+model.add(Conv2D(filters=64, kernel_size=3, padding='valid', activation='relu'))
+model.add(MaxPooling2D(pool_size=2))
+
+model.add(Dropout(0.5))
+model.add(Conv2D(filters=128, kernel_size=3, padding='valid', activation='relu'))
+
+model.add(GlobalAveragePooling2D())
+
+model.add(Dropout(0.5))
+
+model.add(Dense(17, activation='softmax'))
+
+model.summary()
+```
+
+    Model: "sequential_18"
+    _________________________________________________________________
+    Layer (type)                 Output Shape              Param #   
+    =================================================================
+    conv2d_52 (Conv2D)           (None, 222, 222, 32)      896       
+    _________________________________________________________________
+    max_pooling2d_38 (MaxPooling (None, 111, 111, 32)      0         
+    _________________________________________________________________
+    dropout_49 (Dropout)         (None, 111, 111, 32)      0         
+    _________________________________________________________________
+    conv2d_53 (Conv2D)           (None, 109, 109, 64)      18496     
+    _________________________________________________________________
+    max_pooling2d_39 (MaxPooling (None, 54, 54, 64)        0         
+    _________________________________________________________________
+    dropout_50 (Dropout)         (None, 54, 54, 64)        0         
+    _________________________________________________________________
+    conv2d_54 (Conv2D)           (None, 52, 52, 128)       73856     
+    _________________________________________________________________
+    global_average_pooling2d_15  (None, 128)               0         
+    _________________________________________________________________
+    dropout_51 (Dropout)         (None, 128)               0         
+    _________________________________________________________________
+    dense_21 (Dense)             (None, 17)                2193      
+    =================================================================
+    Total params: 95,441
+    Trainable params: 95,441
+    Non-trainable params: 0
+    _________________________________________________________________
+
+
+
+```python
+
+from keras.callbacks import ModelCheckpoint   
+
+# train the model
+checkpointer = ModelCheckpoint(filepath='flowers.weights.best.hdf5', verbose=1, 
+                               save_best_only=True)
+
+model.compile(optimizer='rmsprop',loss='categorical_crossentropy', metrics=['accuracy'])
+```
+
+
+```python
+#model.fit(X_train,y_train,validation_split=0.2,shuffle=True,epochs=20)
+history_object = model.fit_generator(train_generator,validation_data=test_generator, epochs=EPOCHS)
+```
+
+    Epoch 1/10
+    75/75 [==============================] - 29s 383ms/step - loss: 7.8649 - accuracy: 0.0849 - val_loss: 2.3924 - val_accuracy: 0.1176
+    Epoch 2/10
+    75/75 [==============================] - 28s 379ms/step - loss: 2.5159 - accuracy: 0.1689 - val_loss: 2.5512 - val_accuracy: 0.2471
+    Epoch 3/10
+    75/75 [==============================] - 28s 377ms/step - loss: 2.3332 - accuracy: 0.2563 - val_loss: 2.0680 - val_accuracy: 0.3000
+    Epoch 4/10
+    75/75 [==============================] - 28s 377ms/step - loss: 2.2113 - accuracy: 0.2866 - val_loss: 2.2407 - val_accuracy: 0.3059
+    Epoch 5/10
+    75/75 [==============================] - 28s 377ms/step - loss: 2.0356 - accuracy: 0.3244 - val_loss: 2.4963 - val_accuracy: 0.2941
+    Epoch 6/10
+    75/75 [==============================] - 29s 380ms/step - loss: 2.0376 - accuracy: 0.3403 - val_loss: 1.7107 - val_accuracy: 0.3588
+    Epoch 7/10
+    75/75 [==============================] - 30s 407ms/step - loss: 1.9415 - accuracy: 0.3689 - val_loss: 2.1597 - val_accuracy: 0.3118
+    Epoch 8/10
+    75/75 [==============================] - 32s 421ms/step - loss: 1.9102 - accuracy: 0.3571 - val_loss: 1.8596 - val_accuracy: 0.3353
+    Epoch 9/10
+    75/75 [==============================] - 31s 416ms/step - loss: 1.8563 - accuracy: 0.3975 - val_loss: 2.3684 - val_accuracy: 0.3235
+    Epoch 10/10
+    75/75 [==============================] - 31s 415ms/step - loss: 1.8305 - accuracy: 0.4202 - val_loss: 2.0994 - val_accuracy: 0.4118
+
+
+
+```python
+
 ```
